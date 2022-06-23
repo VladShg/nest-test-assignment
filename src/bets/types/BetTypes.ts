@@ -1,4 +1,4 @@
-export const BetTypes = {
-  Odd: 'odd',
-  Even: 'even',
-};
+export enum BetTypes {
+  Odd = 'odd',
+  Even = 'even',
+}
