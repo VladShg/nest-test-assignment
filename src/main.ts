@@ -26,6 +26,10 @@ async function bootstrap() {
       saveUninitialized: false,
     }),
   );
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
+    credentials: true,
+  });
   await app.listen(3000);
 }
 bootstrap();
