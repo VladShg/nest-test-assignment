@@ -13,7 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const redisStore = RedisStore(session);
   const redisClient = createClient({
-    url: process.env.REDIS_URL,
+    url: constants.redisUrl,
     legacyMode: true,
   });
   await redisClient.connect();
@@ -27,7 +27,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
+    origin: constants.origin,
     credentials: true,
   });
   await app.listen(3000);
