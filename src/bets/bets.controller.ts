@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import {
   BadRequestException,
   Body,
@@ -6,20 +8,21 @@ import {
   Patch,
   Post,
   Req,
-  Session,
+  UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { BetsService } from './bets.service';
 import { CreateDto } from './dto/create.dto';
 import { EndDto } from './dto/end.dto';
 import { BetDto, SpinDto } from './dto/spin.dto';
+import { SessionGuard } from './session.guard';
 import { GameModes } from './types/GameModes';
+import { SessionRequest } from './types/SessionRequest';
 @Controller('bets')
 export class BetsController {
   constructor(private betsService: BetsService) {}
 
   @Post('/create')
-  create(@Body() body: CreateDto, @Session() session: Record<string, any>) {
+  create(@Body() body: CreateDto, @Req() req: SessionRequest) {
     let balance: number;
 
     if (body.mode === GameModes.Normal) {
@@ -29,18 +32,20 @@ export class BetsController {
       balance = body.balance;
     }
 
-    session.mode = body.mode;
-    session.balance = balance.toString();
-    session.balanceStart = balance.toString();
+    req.session.regenerate(() => {});
+    req.session.reload(() => {});
+    req.session.mode = body.mode;
+    req.session.balance = balance.toString();
+    req.session.balanceStart = balance.toString();
   }
 
+  @UseGuards(SessionGuard)
   @Patch('/spin')
-  spin(
-    @Body() body: SpinDto,
-    @Session() session: Record<string, any>,
-  ): BetDto[] {
-    const startBalance: number = Number.parseInt(session.balance);
-    const mode = session.mode;
+  spin(@Body() body: SpinDto, @Req() req: SessionRequest): BetDto[] {
+    const startBalance: number = Number.parseInt(req.session.balance);
+    const mode = req.session.mode;
+
+    if (!startBalance) throw new BadRequestException('Session invalid');
 
     let totalBet = 0;
     body.bets.forEach((bet: BetDto) => {
@@ -56,17 +61,20 @@ export class BetsController {
       mode,
     );
 
-    session.balance = endBalance.toString();
+    req.session.balance = endBalance.toString();
     return winners;
   }
 
+  @UseGuards(SessionGuard)
   @Delete('/end')
-  end(@Session() session: Record<string, any>, @Req() req: Request): EndDto {
+  end(@Req() req: SessionRequest): EndDto {
+    if (!req.session.balance)
+      throw new BadRequestException('Session not valid');
     const response: EndDto = {
-      balanceStart: Number.parseInt(session.balanceStart),
-      balanceEnd: Number.parseInt(session.balance),
+      balanceStart: Number.parseInt(req.session.balance),
+      balanceEnd: Number.parseInt(req.session.balance),
     };
-    req.session.destroy(null);
+    req.session.regenerate(() => {});
     return response;
   }
 }

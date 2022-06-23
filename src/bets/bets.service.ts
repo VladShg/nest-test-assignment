@@ -32,7 +32,7 @@ export class BetsService {
     const winners: BetDto[] = [];
     bets.forEach((bet: BetDto) => {
       let winner: number;
-      if (mode === GameModes.Testing && bet.winningNumber) {
+      if (mode === GameModes.Testing && typeof bet.winningNumber === 'number') {
         winner = bet.winningNumber;
       } else {
         winner = randomInt(0, 36);
