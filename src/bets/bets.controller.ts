@@ -48,8 +48,6 @@ export class BetsController {
     const startBalance: number = Number.parseInt(req.session.balance);
     const mode = req.session.mode;
 
-    if (!startBalance) throw new BadRequestException('Session invalid');
-
     let totalBet = 0;
     body.bets.forEach((bet: BetDto) => {
       totalBet += bet.betAmount;
