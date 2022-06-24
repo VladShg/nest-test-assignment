@@ -13,6 +13,7 @@ import {
 import { BetsService } from './bets.service';
 import { CreateDto } from './dto/create.dto';
 import { EndDto } from './dto/end.dto';
+import { ResponseDto } from './dto/response.dto';
 import { BetDto, SpinDto } from './dto/spin.dto';
 import { SessionGuard } from './session.guard';
 import { GameModes } from './types/GameModes';
@@ -22,7 +23,7 @@ export class BetsController {
   constructor(private betsService: BetsService) {}
 
   @Post('/create')
-  create(@Body() body: CreateDto, @Req() req: SessionRequest) {
+  create(@Body() body: CreateDto, @Req() req: SessionRequest): ResponseDto {
     let balance: number;
 
     if (body.mode === GameModes.Normal) {
@@ -37,6 +38,8 @@ export class BetsController {
     req.session.mode = body.mode;
     req.session.balance = balance.toString();
     req.session.balanceStart = balance.toString();
+
+    return { response: 'game created' };
   }
 
   @UseGuards(SessionGuard)
