@@ -1,10 +1,10 @@
 import { IsIn, IsJWT, IsNotEmpty, IsNumber, ValidateIf } from 'class-validator';
-import { GameModes } from '../types/GameModes';
+import { GameMode, GameModes } from '../types/GameModes';
 
 export class CreateDto {
   @IsIn([GameModes.Normal, GameModes.Testing])
   @IsNotEmpty()
-  mode: string;
+  mode: GameMode;
 
   @ValidateIf((entity) => entity?.mode == GameModes.Normal)
   @IsJWT()

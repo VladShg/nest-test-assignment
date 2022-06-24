@@ -10,7 +10,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { BetTypes } from '../types/BetTypes';
+import { BetType, BetTypes } from '../types/BetTypes';
 
 @ValidatorConstraint()
 class BetTypeValidator implements ValidatorConstraintInterface {
@@ -33,7 +33,7 @@ class BetTypeValidator implements ValidatorConstraintInterface {
 export class BetDto {
   @IsNotEmpty()
   @Validate(BetTypeValidator)
-  betType: string | number;
+  betType: BetType;
 
   @IsNumber()
   @IsPositive()
